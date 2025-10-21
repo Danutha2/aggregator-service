@@ -16,17 +16,11 @@ export class SearchController {
     @Query('date') date: Date,
   ) {
     SearchController.requestCount++;
-    this.logger.log(
+    this.logger.debug(
       `V1 search endpoint hit | count=${SearchController.requestCount} | from=${from} | destination=${destination} | date=${date} `,
     );
 
     const result = await this.sgService.tripSearchV1(destination, from, date);
-
-    // Log degraded states for each service
-    this.logger.warn(
-      `Degraded status | flight=${result.degraded.flight} | hotel=${result.degraded.hotel}`,
-    );
-
     return result;
   }
 }

@@ -9,8 +9,6 @@ import { HotelDTO as Hotel } from '../DTO/hotelDTO';
 import { WeatherDTO as Weather } from '../DTO/weather.DTO';
 import { CircuitBreaker } from 'src/Circuit-Breaker/circuitBreaker';
 import { ConfigService } from '@nestjs/config';
-import { config } from 'process';
-
 
 @Injectable()
 export class SearchService {
@@ -22,7 +20,7 @@ export class SearchService {
     this.weatherBreaker = new CircuitBreaker<Weather[]>({
       threshold: this.configService.get<number>('CIRCUIT_THRESHOLD') || 0.5,           // default 50%
       requestVolume: this.configService.get<number>('CIRCUIT_REQUEST_VOLUME') || 50,   // keep history of 50
-      minRequestsBeforeEvaluate: this.configService.get<number>('CIRCUIT_MIN_REQUESTS_BEFORE') || 20, // 👈 new line
+      minRequestsBeforeEvaluate: this.configService.get<number>('CIRCUIT_MIN_REQUESTS_BEFORE') || 20,
       cooldown: this.configService.get<number>('CIRCUIT_COOLDOWN') || 30000,           // default 30s
       halfOpenRequests: this.configService.get<number>('CIRCUIT_HALF_OPEN_REQUESTS') || 5,
       fallback: () => {
@@ -30,7 +28,6 @@ export class SearchService {
         return [{ summary: 'Weather data unavailable', degraded: true } as any];
       },
     });
-
   }
 
   private async callWithTimeout<T>(url: string): Promise<{ data: T | null; degraded: boolean }> {
@@ -66,7 +63,7 @@ export class SearchService {
     this.logger.debug(`Starting tripSearchV1 for destination=${destination}, from=${from}`);
 
     try {
-      //promise all settled
+      
       const [flightResult, hotelResult] = await Promise.all([
         this.callWithTimeout<Flight[]>(flightServiceURL),
         this.callWithTimeout<Hotel[]>(hotelServiceURL),
@@ -136,7 +133,6 @@ export class SearchService {
       const matchedFlights = (flightResult.data ?? []).filter(f => f.destination === destination);
       const matchedHotels = (hotelResult.data ?? []).filter(h => h.location === destination);
 
-      this.logger.debug(weatherResult)
       const weatherInfo: Weather[] = weatherResult ?? [];
       const weatherDegraded = weatherInfo.some(w => (w as any).degraded === true);
 

@@ -44,7 +44,7 @@ export class CheapestrouteService {
     // Step 1: Fetch flights
     const flightServiceURL = `http://localhost:3000/flight-info/findByLocation?destination=${destination}&from=${from}&departTime=${date}`;
     const flights: flightInfo[] = (await this.callService<flightInfo[]>(flightServiceURL)) ?? [];
-    this.logger.log(`Flights fetched: ${flights.length}`);
+    this.logger.debug(`Flights fetched: ${flights.length}`);
 
     if (!flights || flights.length === 0) {
       this.logger.warn('No flights found for given search parameters');
@@ -54,12 +54,12 @@ export class CheapestrouteService {
     // Pick the cheapest flight
     const cheapestFlight = flights.reduce((prev, curr) => (curr.price < prev.price ? curr : prev));
     const arrivalHour = new Date(cheapestFlight.arrivetime).getHours();
-    this.logger.log(`Cheapest flight selected | Price=${cheapestFlight.price}, Arrival Hour=${arrivalHour}`);
+    this.logger.debug(`Cheapest flight selected | Price=${cheapestFlight.price}, Arrival Hour=${arrivalHour}`);
 
     // Step 2: Fetch hotels
     const hotelServiceURL = `http://localhost:3001/hotel-info/findLateCheckIn?location=${destination}&date=${date}`;
     let hotels: HotelDTO[] = (await this.callService<HotelDTO[]>(hotelServiceURL)) ?? [];
-    this.logger.log(`Hotels fetched: ${hotels.length}`);
+    this.logger.debug(`Hotels fetched: ${hotels.length}`);
 
     if (!hotels || hotels.length === 0) {
       this.logger.warn('No hotels found for this location/date');

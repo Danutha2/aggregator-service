@@ -38,18 +38,18 @@ export class ContextualService {
 
   async contextualV1(tripSearch: ContextualTripSearchRDTO) {
     const { destination, from, date } = tripSearch;
-    this.logger.log(`Starting contextualV1 search — destination=${destination}, from=${from}, date=${date}`);
+    this.logger.debug(`Starting contextualV1 search — destination=${destination}, from=${from}, date=${date}`);
 
     try {
       // Step 1: Fetch flights
       const flightURL = `http://localhost:3000/flight-info/findByLocation?destination=${destination}&from=${from}&departTime=${date}`;
       const flights: flightInfo[] = (await this.callService<flightInfo[]>(flightURL)) ?? [];
-      this.logger.log(`Flights fetched: ${flights.length}`);
+      this.logger.debug(`Flights fetched: ${flights.length}`);
 
       // Step 2: Fetch hotels
       const hotelURL = `http://localhost:3001/hotel-info/findByLocation?location=${destination}`;
       const hotels: HotelDTO2LCI[] = (await this.callService<HotelDTO2LCI[]>(hotelURL)) ?? [];
-      this.logger.log(`Hotels fetched: ${hotels.length}`);
+      this.logger.debug(`Hotels fetched: ${hotels.length}`);
 
       // Step 3: Conditional fan-out for events
       let events: EventDTO[] = [];
@@ -59,12 +59,12 @@ export class ContextualService {
         const eventsURL = `http://localhost:3003/events-info/all?date=${date}&destination=${destination}`;
         this.logger.log(`Destination is coastal. Fetching events from: ${eventsURL}`);
         events = (await this.callService<EventDTO[]>(eventsURL)) ?? [];
-        this.logger.log(`Events fetched: ${events.length}`);
+        this.logger.debug(`Events fetched: ${events.length}`);
       } else {
         this.logger.log(`Destination is not coastal. Skipping event fetch.`);
       }
 
-      this.logger.log(
+      this.logger.debug(
         `contextualV1 completed — flights=${flights.length}, hotels=${hotels.length}, events=${events.length}`,
       );
 
